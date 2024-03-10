@@ -19,6 +19,7 @@ use anyhow::{bail, Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_config2::Flags;
 use cargo_llvm_cov::json::{CodeCovJsonExport, CoverageKind, LlvmCovJsonExport};
+use fs::remove_dir_all;
 use regex::Regex;
 use serde_derive::Deserialize;
 use tar::Archive;
@@ -516,6 +517,7 @@ fn run_afl(cx: &Context) -> Result<()> {
     let output_dir = "outputs/";
 
     fs::create_dir_all(input_dir)?;
+    fs::remove_dir_all(output_dir)?;
     fs::create_dir_all(output_dir)?;
 
     if !cx.args.ignore_run_fail {
