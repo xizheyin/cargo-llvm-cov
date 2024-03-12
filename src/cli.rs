@@ -141,6 +141,10 @@ pub(crate) struct Args {
     pub(crate) archive_file: Option<String>,
 
     pub(crate) cargo_args: Vec<String>,
+
+    pub(crate) afl_input: Option<String>,
+    pub(crate) afl_output: Option<String>,
+
     /// Arguments for the test binary
     pub(crate) rest: Vec<String>,
 }
@@ -254,6 +258,9 @@ impl Args {
 
         // nextest options
         let mut archive_file = None;
+
+        let mut afl_input = None;
+        let mut afl_output = None;
 
         let mut parser = lexopt::Parser::from_args(args.clone());
         while let Some(arg) = parser.next()? {
@@ -428,6 +435,16 @@ impl Args {
 
                 Long("archive-file") if matches!(subcommand, Subcommand::Nextest { .. }) => {
                     parse_opt_passthrough!(archive_file);
+                }
+                Short('i') => {
+                    if subcommand == Subcommand::Afl {
+                        parse_opt_passthrough!(afl_input)
+                    }
+                }
+                Short('o') => {
+                    if subcommand == Subcommand::Afl {
+                        parse_opt_passthrough!(afl_output)
+                    }
                 }
 
                 Short('v') | Long("verbose") => {
@@ -917,6 +934,8 @@ impl Args {
             manifest: ManifestOptions { manifest_path, frozen, locked, offline },
             archive_file,
             cargo_args,
+            afl_input,
+            afl_output,
             rest,
         })
     }

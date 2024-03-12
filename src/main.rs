@@ -8,6 +8,7 @@
 // - https://llvm.org/docs/CommandGuide/llvm-cov.html
 
 use std::{
+    clone,
     collections::{BTreeSet, HashMap},
     ffi::{OsStr, OsString},
     io::{self, BufRead, Read, Write},
@@ -513,12 +514,12 @@ fn run_afl(cx: &Context) -> Result<()> {
 
     set_env(cx, &mut cargo, IsNextest(false))?;
 
-    let input_dir = "inputs/";
-    let output_dir = "outputs/";
+    let input_dir = cx.args.afl_input.clone().unwrap();
+    let output_dir = cx.args.afl_output.clone().unwrap();
 
-    fs::create_dir_all(input_dir)?;
-    fs::remove_dir_all(output_dir)?;
-    fs::create_dir_all(output_dir)?;
+    fs::create_dir_all(input_dir.clone())?;
+    fs::remove_dir_all(output_dir.clone())?;
+    fs::create_dir_all(output_dir.clone())?;
 
     if !cx.args.ignore_run_fail {
         {
@@ -536,14 +537,14 @@ fn run_afl(cx: &Context) -> Result<()> {
         }
 
         // prepare seeds
-        let seeds = vec!["example input 1", "sample data 2", "test case 3"];
+        // let seeds = vec!["example input 1", "sample data 2", "test case 3"];
 
-        for (index, seed) in seeds.into_iter().enumerate() {
-            let file_path = format!("{input_dir}seed_{index}.txt");
-            let path = Path::new(&file_path);
-            let mut file = fs::File::create(path)?;
-            file.write_all(seed.as_bytes())?;
-        }
+        // for (index, seed) in seeds.into_iter().enumerate() {
+        //     let file_path = format!("{input_dir}seed_{index}.txt");
+        //     let path = Path::new(&file_path);
+        //     let mut file = fs::File::create(path)?;
+        //     file.write_all(seed.as_bytes())?;
+        // }
 
         // set afl's loop count to 1000 to avoid AFL loop infinitely!
         // AFL maybe exits a process several minutes later and produce a cov file.
